@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>User Profile</title>
+    <script src="https://www.gstatic.com/firebasejs/8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0/firebase-auth.js"></script>
+    <script>
+      var config = {
+	  apiKey: "{{FIREBASE_API_KEY}}",
+	  authDomain: "{{FIREBASE_AUTH_DOMAIN}}"
+      };
+      firebase.initializeApp(config);
+      const auth = firebase.auth();
+
+      function getIdToken() {
+        return firebase.auth().currentUser.getIdToken();
+      }
+
+      function downloadConfig() {
+        var user = auth.currentUser;
+        if (user) {
+          getIdToken()
+            .then(function (idToken) {
+              var xhr = new XMLHttpRequest();
+              xhr.open("GET", "/me/download-config");
+              xhr.setRequestHeader("Authorization", "Bearer " + idToken);
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                  if (xhr.status === 200) {
+                    var link = document.createElement("a");
+                    link.href = window.URL.createObjectURL(xhr.response);
+		    var contentDisposition = xhr.getResponseHeader('Content-Disposition');
+		    link.download = contentDisposition.split(';')[1].trim().split('=')[1].replace(/"/g, '');
+                    link.click();
+                  } else {
+                    window.location.href = "/login";
+                  }
+                }
+              };
+              xhr.responseType = "blob";
+              xhr.send();
+            })
+            .catch(function (error) {
+              console.log(error.message);
+            });
+        } else {
+          window.location.href = "/login";
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>User Profile</h1>
+    <button onclick="downloadConfig()">Download WireGuard Config</button>
+  </body>
+</html>

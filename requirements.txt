@@ -1,0 +1,8 @@
+flask
+requests==2.26.0
+flask-cors
+firebase-admin
+pathvalidate
+uvicorn
+circus
+python-dotenv

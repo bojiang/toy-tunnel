@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <script src="https://www.gstatic.com/firebasejs/8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0/firebase-auth.js"></script>
+    <script>
+      var config = {
+	  apiKey: "{{FIREBASE_API_KEY}}",
+	  authDomain: "{{FIREBASE_AUTH_DOMAIN}}"
+      };
+      firebase.initializeApp(config);
+      auth = firebase.auth();
+
+      function loginWithGoogle() {
+        var provider = new firebase.auth.GoogleAuthProvider();
+        auth
+          .signInWithPopup(provider)
+          .then(function (result) {
+            auth.currentUser.getIdToken().then(function (idToken) {
+              var xhr = new XMLHttpRequest();
+              xhr.open("POST", "/login");
+              xhr.setRequestHeader(
+                "Content-Type",
+                "application/x-www-form-urlencoded"
+              );
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                  if (xhr.status === 200) {
+                    console.log("Login successful");
+                    window.location.href = "/me";
+                  } else {
+                    console.log("Login failed");
+                    alert("Login failed. Please try again.");
+                  }
+                }
+              };
+              xhr.send("idToken=" + idToken);
+            });
+          })
+          .catch(function (error) {
+            console.log(error.message);
+            alert("Login failed. Please try again.");
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Login</h1>
+    <button onclick="loginWithGoogle()">Login with Google</button>
+  </body>
+</html>

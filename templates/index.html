@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>wirelessguard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0/firebase-auth.js"></script>
+    <script>
+      var config = {
+	  apiKey: "{{FIREBASE_API_KEY}}",
+	  authDomain: "{{FIREBASE_AUTH_DOMAIN}}"
+      };
+      firebase.initializeApp(config);
+      const auth = firebase.auth();
+
+      function getIdToken() {
+        return firebase.auth().currentUser.getIdToken();
+      }
+      
+      if (!auth.currentUser) {
+	  window.location.href = "/login"
+      } else {
+	  window.location.href = "/me"
+      }
+    </script>
+  </head>
+  <body>
+    <h1>User Profile</h1>
+    <button onclick="downloadConfig()">Download WireGuard Config</button>
+  </body>
+</html>
