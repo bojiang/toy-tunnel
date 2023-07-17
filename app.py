@@ -22,6 +22,7 @@ EMAIL_SUFFIX = os.getenv("EMAIL_SUFFIX", "")
 # Optional options
 EXTERNAL_IP = os.getenv("EXTERNAL_IP", "")
 VPN_NETWORK = os.getenv("VPN_NETWORK", "10.7.0.0/16")
+VPN_GATEWAY = os.getenv("VPN_GATEWAY", "10.7.0.0/16")
 RESERVED_IP_COUNT = int(os.getenv("RESERVED_IP_COUNT", "10"))
 
 # other constants
@@ -32,6 +33,10 @@ DB_FILE = f"run/users.db"
 
 
 NETWORK = ipaddress.IPv4Network(VPN_NETWORK)
+GATEWAY = VPN_GATEWAY and ipaddress.IPv4Network(VPN_GATEWAY) or NETWORK
+
+assert GATEWAY.subnet_of(NETWORK), "vpn network must be a subnet of vpn gateway"
+
 app = Flask(__name__)
 CORS(app)
 
@@ -160,7 +165,7 @@ Address = {client_ip}/{NETWORK.prefixlen}
 
 [Peer]
 PublicKey = {server_user.public_key}
-AllowedIPs = {NETWORK[1]}/{NETWORK.prefixlen}
+AllowedIPs = {GATEWAY[1]}/{GATEWAY.prefixlen}
 Endpoint = {endpoint_ip}:51820
 PersistentKeepalive = 25"""
 
